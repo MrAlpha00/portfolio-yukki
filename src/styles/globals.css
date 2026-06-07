@@ -42,27 +42,73 @@ a, button, input, textarea, select {
   background: #7c3aed;
 }
 
-@keyframes glitch {
+@keyframes glitch-hero {
   0% {
     text-shadow: 0.05em 0 0 #7c3aed, -0.05em -0.025em 0 #06b6d4;
+    transform: translate(0);
+  }
+  2% {
+    text-shadow: 0.05em 0 0 #7c3aed, -0.05em -0.025em 0 #06b6d4;
+    transform: translate(0);
+  }
+  4% {
+    text-shadow: -0.05em -0.025em 0 #7c3aed, 0.025em 0.025em 0 #06b6d4;
+    transform: translate(-1px, 1px);
+  }
+  6% {
+    text-shadow: 0.025em 0.05em 0 #7c3aed, 0.05em 0 0 #06b6d4;
+    transform: translate(0);
+  }
+  8% {
+    text-shadow: -0.025em 0 0 #7c3aed, -0.025em -0.025em 0 #06b6d4;
+    transform: translate(1px, -1px);
+  }
+  10% {
+    text-shadow: 0.05em 0 0 #7c3aed, -0.05em -0.025em 0 #06b6d4;
+    transform: translate(0);
+  }
+  12% {
+    text-shadow: none;
+    transform: translate(0);
   }
   14% {
     text-shadow: 0.05em 0 0 #7c3aed, -0.05em -0.025em 0 #06b6d4;
-  }
-  15% {
-    text-shadow: -0.05em -0.025em 0 #7c3aed, 0.025em 0.025em 0 #06b6d4;
-  }
-  49% {
-    text-shadow: -0.05em -0.025em 0 #7c3aed, 0.025em 0.025em 0 #06b6d4;
-  }
-  50% {
-    text-shadow: 0.025em 0.05em 0 #7c3aed, 0.05em 0 0 #06b6d4;
-  }
-  99% {
-    text-shadow: 0.025em 0.05em 0 #7c3aed, 0.05em 0 0 #06b6d4;
+    transform: translate(0);
   }
   100% {
-    text-shadow: -0.025em 0 0 #7c3aed, -0.025em -0.025em 0 #06b6d4;
+    text-shadow: 0.05em 0 0 #7c3aed, -0.05em -0.025em 0 #06b6d4;
+    transform: translate(0);
+  }
+}
+
+@keyframes glitch-hero-alt {
+  0% {
+    clip-path: inset(0 0 80% 0);
+    transform: translate(-2px, 0);
+  }
+  5% {
+    clip-path: inset(20% 0 60% 0);
+    transform: translate(2px, 0);
+  }
+  10% {
+    clip-path: inset(40% 0 40% 0);
+    transform: translate(-1px, 0);
+  }
+  15% {
+    clip-path: inset(60% 0 20% 0);
+    transform: translate(1px, 0);
+  }
+  20% {
+    clip-path: inset(80% 0 0 0);
+    transform: translate(-2px, 0);
+  }
+  25% {
+    clip-path: inset(0);
+    transform: translate(0);
+  }
+  100% {
+    clip-path: inset(0);
+    transform: translate(0);
   }
 }
 
@@ -84,41 +130,36 @@ a, button, input, textarea, select {
   }
 }
 
-.animate-glitch {
-  animation: glitch 1s infinite;
-}
-
-.animate-sweep {
+.glitch-hero {
   position: relative;
-  overflow: hidden;
+  display: inline-block;
+  animation: glitch-hero 4s infinite;
 }
 
-.animate-sweep::before {
-  content: '';
+.glitch-hero::before,
+.glitch-hero::after {
+  content: 'Yuktha A R';
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(124, 58, 237, 0.15),
-    transparent
-  );
-  transform: translateX(-100%);
-  transition: transform 0.6s ease;
+  opacity: 0;
 }
 
-.animate-sweep:hover::before {
-  transform: translateX(100%);
+.glitch-hero::before {
+  color: #7c3aed;
+  animation: glitch-hero-alt 4s infinite linear alternate-reverse;
 }
 
-.glitch-text {
-  position: relative;
-  display: inline-block;
+.glitch-hero::after {
+  color: #06b6d4;
+  animation: glitch-hero-alt 3s infinite linear alternate;
 }
 
-.glitch-text:hover {
-  animation: glitch 0.3s infinite;
+@media (max-width: 640px) {
+  .glitch-hero::before,
+  .glitch-hero::after {
+    display: none;
+  }
 }
