@@ -2,6 +2,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  cursor: none !important;
 }
 
 html {
@@ -13,11 +14,6 @@ body {
   color: #e2e8f0;
   font-family: 'Inter', sans-serif;
   overflow-x: hidden;
-  cursor: none;
-}
-
-a, button, input, textarea, select {
-  cursor: none;
 }
 
 ::selection {
@@ -130,6 +126,12 @@ a, button, input, textarea, select {
   }
 }
 
+@keyframes draw-circuit {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 .glitch-hero {
   position: relative;
   display: inline-block;
@@ -157,12 +159,6 @@ a, button, input, textarea, select {
   animation: glitch-hero-alt 3s infinite linear alternate;
 }
 
-@keyframes draw-circuit {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
 .preloader-path {
   animation: draw-circuit 1.5s ease-in-out forwards;
 }
@@ -181,7 +177,7 @@ a, button, input, textarea, select {
 .preloader-node:nth-child(9) { animation-delay: 0.8s; }
 .preloader-node:nth-child(10) { animation-delay: 0.9s; }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .glitch-hero::before,
   .glitch-hero::after {
     display: none;

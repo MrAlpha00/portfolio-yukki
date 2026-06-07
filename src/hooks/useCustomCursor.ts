@@ -1,44 +1,23 @@
 import { useEffect, useRef } from 'react'
 
 export function useCustomCursor() {
-  const dotRef = useRef<HTMLDivElement>(null)
-  const ringRef = useRef<HTMLDivElement>(null)
+  const cursorRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const dot = dotRef.current
-    const ring = ringRef.current
-    if (!dot || !ring) return
-
-    let mouseX = 0, mouseY = 0
-    let ringX = 0, ringY = 0
+    const el = cursorRef.current
+    if (!el) return
 
     const onMouseMove = (e: MouseEvent) => {
-      mouseX = e.clientX
-      mouseY = e.clientY
-      dot.style.transform = `translate(${mouseX}px, ${mouseY}px)`
-    }
-
-    const lerp = () => {
-      ringX += (mouseX - ringX) * 0.12
-      ringY += (mouseY - ringY) * 0.12
-      ring.style.transform = `translate(${ringX}px, ${ringY}px)`
-      requestAnimationFrame(lerp)
+      el.style.left = `${e.clientX}px`
+      el.style.top = `${e.clientY}px`
     }
 
     const onHoverIn = () => {
-      dot.style.opacity = '0'
-      ring.style.width = '52px'
-      ring.style.height = '52px'
-      ring.style.borderColor = 'rgba(124, 58, 237, 0.6)'
-      ring.style.backgroundColor = 'rgba(124, 58, 237, 0.2)'
+      el.style.transform = 'scale(1.3) rotate(10deg)'
     }
 
     const onHoverOut = () => {
-      dot.style.opacity = '1'
-      ring.style.width = '36px'
-      ring.style.height = '36px'
-      ring.style.borderColor = 'rgba(124, 58, 237, 0.4)'
-      ring.style.backgroundColor = 'transparent'
+      el.style.transform = 'scale(1) rotate(0deg)'
     }
 
     const handleMouseOver = (e: MouseEvent) => {
@@ -48,7 +27,8 @@ export function useCustomCursor() {
         target.tagName === 'BUTTON' ||
         target.closest('a') ||
         target.closest('button') ||
-        target.closest('[data-hoverable]')
+        target.closest('[data-hoverable]') ||
+        target.closest('[data-cursor="pointer"]')
       ) {
         onHoverIn()
         target.addEventListener('mouseleave', onHoverOut, { once: true })
@@ -57,7 +37,6 @@ export function useCustomCursor() {
 
     document.addEventListener('mousemove', onMouseMove)
     document.addEventListener('mouseover', handleMouseOver)
-    lerp()
 
     return () => {
       document.removeEventListener('mousemove', onMouseMove)
@@ -65,5 +44,5 @@ export function useCustomCursor() {
     }
   }, [])
 
-  return { dotRef, ringRef }
+  return cursorRef
 }
