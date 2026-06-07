@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 interface ButtonProps {
   children: ReactNode
-  variant?: 'primary' | 'outline'
+  variant?: string
   href?: string
   onClick?: () => void
   className?: string
