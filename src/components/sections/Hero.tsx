@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense, lazy } from 'react'
+import { useState, useEffect, Suspense, lazy, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 
 const ParticleCanvas = lazy(() => import('@/components/three/ParticleCanvas'))
@@ -16,6 +16,7 @@ export default function Hero() {
   const [charIdx, setCharIdx] = useState(0)
   const [deleting, setDeleting] = useState(false)
   const [visible, setVisible] = useState(true)
+  const [mouse, setMouse] = useState({ x: 0, y: 0 })
 
   useEffect(() => {
     const current = typewriterWords[wordIdx]
@@ -41,6 +42,12 @@ export default function Hero() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    const x = (e.clientX / window.innerWidth) * 2 - 1
+    const y = -(e.clientY / window.innerHeight) * 2 + 1
+    setMouse({ x, y })
+  }, [])
+
   const handleScroll = () => {
     const el = document.getElementById('about')
     if (el) el.scrollIntoView({ behavior: 'smooth' })
@@ -49,8 +56,9 @@ export default function Hero() {
   return (
     <section
       id="hero"
-      className="relative w-full h-screen flex items-center overflow-hidden"
+      className="relative w-full h-screen flex items-center overflow-hidden select-none"
       style={{ backgroundColor: '#0a0a0f' }}
+      onMouseMove={handleMouseMove}
     >
       <div className="absolute inset-0">
         <Suspense fallback={null}>
@@ -61,7 +69,8 @@ export default function Hero() {
       <div
         className="absolute inset-0"
         style={{
-          background: 'radial-gradient(ellipse 80% 60% at 50% 40%, rgba(124,58,237,0.08) 0%, transparent 70%)',
+          background:
+            'radial-gradient(ellipse 80% 60% at 50% 40%, rgba(124,58,237,0.08) 0%, transparent 70%)',
         }}
       />
 
@@ -106,19 +115,17 @@ export default function Hero() {
       </div>
 
       {/* RIGHT COLUMN */}
-      <div className="hidden md:relative md:z-10 md:block md:w-[45%] h-full">
-        <div className="absolute inset-0 flex items-center justify-center px-6">
-          <div className="w-full max-w-[380px] aspect-[4/5]">
-            <Suspense
-              fallback={
-                <div className="w-full h-full flex items-center justify-center text-[#e2e8f0]/20 text-sm font-body">
-                  Loading&hellip;
-                </div>
-              }
-            >
-              <PhotoFrame />
-            </Suspense>
-          </div>
+      <div className="hidden md:relative md:z-10 md:flex md:w-[45%] h-full items-center justify-center">
+        <div className="w-full max-w-[380px] aspect-[4/5]">
+          <Suspense
+            fallback={
+              <div className="w-full h-full flex items-center justify-center text-[#e2e8f0]/20 text-sm font-body">
+                Loading&hellip;
+              </div>
+            }
+          >
+            <PhotoFrame mouseX={mouse.x} mouseY={mouse.y} />
+          </Suspense>
         </div>
       </div>
 

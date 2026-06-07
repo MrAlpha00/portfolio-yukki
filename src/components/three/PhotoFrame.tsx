@@ -1,114 +1,107 @@
 import { useRef } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { OrbitControls, Html } from '@react-three/drei'
+import { useTexture, Environment } from '@react-three/drei'
 import * as THREE from 'three'
 
-function Frame() {
+interface FrameSceneProps {
+  targetY: number
+  targetX: number
+}
+
+function FrameScene({ targetY, targetX }: FrameSceneProps) {
   const groupRef = useRef<THREE.Group>(null!)
+  const currentY = useRef(0)
+  const currentX = useRef(0)
+
+  const texture = useTexture('/profile.jpg')
 
   useFrame(({ clock }) => {
     const t = clock.elapsedTime
-    groupRef.current.position.y = Math.sin(t * 0.8) * 0.15
-    groupRef.current.rotation.y = Math.sin(t * 0.35) * 0.12
-    groupRef.current.rotation.x = -0.05 + Math.sin(t * 0.5) * 0.01
+
+    currentY.current += (targetY - currentY.current) * 0.05
+    currentX.current += (targetX - currentX.current) * 0.05
+
+    const bob = Math.sin(t * 0.7) * 0.12
+    const breathe = Math.sin(t * 0.4) * 0.18
+    const xTilt = Math.sin(t * 0.3) * 0.06 - 0.04
+
+    groupRef.current.position.y = bob
+    groupRef.current.rotation.y = breathe + currentY.current * 0.2
+    groupRef.current.rotation.x = xTilt + currentX.current * 0.15
   })
 
   return (
     <group ref={groupRef}>
-      {/* Glow backdrop */}
-      <mesh position={[0, 0, -0.18]}>
-        <planeGeometry args={[3.2, 3.9]} />
-        <meshBasicMaterial color="#7c3aed" transparent opacity={0.08} />
+      {/* A) Glow plane behind everything */}
+      <mesh position={[0, 0, -0.2]}>
+        <planeGeometry args={[3.4, 4.2]} />
+        <meshBasicMaterial color="#7c3aed" transparent opacity={0.12} />
       </mesh>
 
-      {/* Frame border — back */}
-      <mesh position={[0, 0, -0.06]}>
-        <boxGeometry args={[2.8, 3.5, 0.12]} />
+      {/* B) Outer frame box */}
+      <mesh>
+        <boxGeometry args={[3.0, 3.8, 0.18]} />
         <meshStandardMaterial
           color="#7c3aed"
-          metalness={0.8}
-          roughness={0.2}
+          metalness={0.9}
+          roughness={0.15}
+          envMapIntensity={1.0}
         />
       </mesh>
 
-      {/* Frame border — front (raised) */}
-      <mesh position={[0, 0, 0.03]}>
-        <boxGeometry args={[2.68, 3.38, 0.06]} />
-        <meshStandardMaterial
-          color="#7c3aed"
-          metalness={0.7}
-          roughness={0.25}
-        />
+      {/* C) Dark inner inset (creates depth illusion) */}
+      <mesh position={[0, 0, 0.08]}>
+        <boxGeometry args={[2.65, 3.45, 0.05]} />
+        <meshStandardMaterial color="#0a0a0f" />
       </mesh>
 
-      {/* Inner photo area */}
-      <mesh position={[0, 0, 0.07]}>
-        <planeGeometry args={[2.4, 3.1]} />
-        <PhotoContent />
+      {/* A) Photo plane */}
+      <mesh position={[0, 0, 0.11]}>
+        <planeGeometry args={[2.6, 3.4]} />
+        <meshBasicMaterial map={texture} toneMapped={false} />
       </mesh>
+
+      {/* E) Four cyan metallic corner accents */}
+      {[
+        [-1.42, 1.82],
+        [1.42, 1.82],
+        [-1.42, -1.82],
+        [1.42, -1.82],
+      ].map(([x, y]) => (
+        <mesh key={`${x}${y}`} position={[x, y, 0]}>
+          <boxGeometry args={[0.15, 0.15, 0.25]} />
+          <meshStandardMaterial
+            color="#06b6d4"
+            metalness={1.0}
+            roughness={0.0}
+          />
+        </mesh>
+      ))}
     </group>
   )
 }
 
-function PhotoContent() {
-  const texture = (window as any).__PROFILE_TEXTURE as THREE.Texture | null
-
-  if (texture) {
-    return <meshBasicMaterial map={texture} toneMapped={false} />
-  }
-
-  return (
-    <>
-      <meshBasicMaterial color="#1e1b4b" />
-      <Html center wrapperClass="pointer-events-none">
-        <div className="flex flex-col items-center gap-2 text-center select-none">
-          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-50">
-            <rect x="3" y="7" width="34" height="26" rx="2" />
-            <circle cx="14" cy="17" r="3" />
-            <path d="M3 27l9-9 5 5 7-7 13 13" />
-          </svg>
-          <span className="font-body text-xs text-[#7c3aed]/50 tracking-wider">
-            Your Photo Here
-          </span>
-        </div>
-      </Html>
-    </>
-  )
+interface PhotoFrameProps {
+  mouseX?: number
+  mouseY?: number
 }
 
-function Scene() {
-  return (
-    <>
-      <ambientLight intensity={0.3} />
-      <pointLight position={[-3, 3, 4]} intensity={1.2} color="#7c3aed" />
-      <pointLight position={[3, -3, 2]} intensity={0.6} color="#06b6d4" />
-      <Frame />
-      <OrbitControls
-        enableZoom={false}
-        enablePan={false}
-        autoRotate={false}
-        minPolarAngle={Math.PI / 2 - 0.3}
-        maxPolarAngle={Math.PI / 2 + 0.3}
-        minAzimuthAngle={-0.4}
-        maxAzimuthAngle={0.4}
-        dampingFactor={0.05}
-        enableDamping
-      />
-    </>
-  )
-}
-
-export default function PhotoFrame() {
+export default function PhotoFrame({ mouseX = 0, mouseY = 0 }: PhotoFrameProps) {
   return (
     <Canvas
-      camera={{ position: [0, 0, 3.8], fov: 28 }}
+      camera={{ position: [0, 0, 5.5], fov: 45 }}
       gl={{ alpha: true, antialias: true }}
       style={{ background: 'transparent', width: '100%', height: '100%' }}
       onCreated={({ gl }) => {
         gl.setClearColor(0x000000, 0)
       }}
     >
-      <Scene />
+      <ambientLight intensity={0.4} />
+      <pointLight position={[-3, 3, 3]} color="#7c3aed" intensity={2.5} />
+      <pointLight position={[3, -2, 2]} color="#06b6d4" intensity={1.5} />
+      <pointLight position={[0, 0, 4]} color="#ffffff" intensity={0.8} />
+      <Environment preset="night" />
+      <FrameScene targetY={mouseX} targetX={mouseY} />
     </Canvas>
   )
 }
