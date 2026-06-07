@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 const navLinks = [
   { label: 'About', href: '#about' },
@@ -12,11 +12,24 @@ const navLinks = [
 export default function Navbar() {
   const [open, setOpen] = useState(false)
   const location = useLocation()
+  const navigate = useNavigate()
 
   const handleClick = (href: string) => {
     setOpen(false)
     if (href.startsWith('/')) return
     const id = href.replace('#', '')
+
+    if (location.pathname !== '/') {
+      navigate('/')
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          const el = document.getElementById(id)
+          if (el) el.scrollIntoView({ behavior: 'smooth' })
+        }, 300)
+      })
+      return
+    }
+
     const el = document.getElementById(id)
     if (el) el.scrollIntoView({ behavior: 'smooth' })
   }
