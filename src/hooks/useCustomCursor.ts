@@ -5,29 +5,43 @@ export function useCustomCursor() {
   const ringRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    let mouseX = 0
-    let mouseY = 0
-    let ringX = 0
-    let ringY = 0
+    const dot = dotRef.current
+    const ring = ringRef.current
+    if (!dot || !ring) return
+
+    let mouseX = 0, mouseY = 0
+    let ringX = 0, ringY = 0
 
     const onMouseMove = (e: MouseEvent) => {
       mouseX = e.clientX
       mouseY = e.clientY
-      if (dotRef.current) {
-        dotRef.current.style.transform = `translate(${mouseX}px, ${mouseY}px)`
-      }
+      dot.style.transform = `translate(${mouseX}px, ${mouseY}px)`
     }
 
-    const animate = () => {
-      ringX += (mouseX - ringX) * 0.15
-      ringY += (mouseY - ringY) * 0.15
-      if (ringRef.current) {
-        ringRef.current.style.transform = `translate(${ringX}px, ${ringY}px)`
-      }
-      requestAnimationFrame(animate)
+    const lerp = () => {
+      ringX += (mouseX - ringX) * 0.12
+      ringY += (mouseY - ringY) * 0.12
+      ring.style.transform = `translate(${ringX}px, ${ringY}px)`
+      requestAnimationFrame(lerp)
     }
 
-    const onHoverable = (e: MouseEvent) => {
+    const onHoverIn = () => {
+      dot.style.opacity = '0'
+      ring.style.width = '52px'
+      ring.style.height = '52px'
+      ring.style.borderColor = 'rgba(124, 58, 237, 0.6)'
+      ring.style.backgroundColor = 'rgba(124, 58, 237, 0.2)'
+    }
+
+    const onHoverOut = () => {
+      dot.style.opacity = '1'
+      ring.style.width = '36px'
+      ring.style.height = '36px'
+      ring.style.borderColor = 'rgba(124, 58, 237, 0.4)'
+      ring.style.backgroundColor = 'transparent'
+    }
+
+    const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement
       if (
         target.tagName === 'A' ||
@@ -36,19 +50,18 @@ export function useCustomCursor() {
         target.closest('button') ||
         target.closest('[data-hoverable]')
       ) {
-        ringRef.current?.classList.add('scale-150')
-      } else {
-        ringRef.current?.classList.remove('scale-150')
+        onHoverIn()
+        target.addEventListener('mouseleave', onHoverOut, { once: true })
       }
     }
 
     document.addEventListener('mousemove', onMouseMove)
-    document.addEventListener('mouseover', onHoverable)
-    animate()
+    document.addEventListener('mouseover', handleMouseOver)
+    lerp()
 
     return () => {
       document.removeEventListener('mousemove', onMouseMove)
-      document.removeEventListener('mouseover', onHoverable)
+      document.removeEventListener('mouseover', handleMouseOver)
     }
   }, [])
 
