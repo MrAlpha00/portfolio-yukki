@@ -80,7 +80,7 @@ function ParticleField() {
     }, 2500)
   }, [])
 
-  useFrame((_, delta) => {
+  useFrame(() => {
     if (phaseRef.current !== 1) return
     const pos = ref.current.geometry.attributes.position.array as Float32Array
     const vel = velocitiesRef.current!
@@ -132,15 +132,15 @@ function ParticleField() {
       />
       <bufferGeometry>
         <bufferAttribute
+          args={[cloudPositions, 3]}
           attach="attributes-position"
           count={count}
-          array={cloudPositions}
           itemSize={3}
         />
         <bufferAttribute
+          args={[colors, 3]}
           attach="attributes-color"
           count={count}
-          array={colors}
           itemSize={3}
         />
       </bufferGeometry>

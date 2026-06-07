@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense, useRef, lazy } from 'react'
+import { useState, useEffect, Suspense, lazy } from 'react'
 import { Link } from 'react-router-dom'
 
 const ParticleCanvas = lazy(() => import('@/components/three/ParticleCanvas'))
