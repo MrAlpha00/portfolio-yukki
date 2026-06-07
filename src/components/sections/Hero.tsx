@@ -1,31 +1,127 @@
-import { Suspense } from 'react'
-import ParticleCanvas from '@/components/three/ParticleCanvas'
-import GlitchText from '@/components/ui/GlitchText'
-import Button from '@/components/ui/Button'
+import { useState, useEffect, Suspense, useRef, lazy } from 'react'
+import { Link } from 'react-router-dom'
+
+const ParticleCanvas = lazy(() => import('@/components/three/ParticleCanvas'))
+
+const typewriterWords = [
+  'Hardware Engineer',
+  'Embedded Systems',
+  'Software Developer',
+  'ECE 2026 Graduate',
+]
 
 export default function Hero() {
+  const [wordIdx, setWordIdx] = useState(0)
+  const [charIdx, setCharIdx] = useState(0)
+  const [deleting, setDeleting] = useState(false)
+  const [visible, setVisible] = useState(true)
+
+  useEffect(() => {
+    const current = typewriterWords[wordIdx]
+    let timeout: ReturnType<typeof setTimeout>
+
+    if (!deleting && charIdx < current.length) {
+      timeout = setTimeout(() => setCharIdx((c) => c + 1), 80)
+    } else if (!deleting && charIdx === current.length) {
+      timeout = setTimeout(() => setDeleting(true), 1500)
+    } else if (deleting && charIdx > 0) {
+      timeout = setTimeout(() => setCharIdx((c) => c - 1), 40)
+    } else if (deleting && charIdx === 0) {
+      setDeleting(false)
+      setWordIdx((w) => (w + 1) % typewriterWords.length)
+    }
+
+    return () => clearTimeout(timeout)
+  }, [wordIdx, charIdx, deleting])
+
+  useEffect(() => {
+    const onScroll = () => setVisible(window.scrollY < 100)
+    window.addEventListener('scroll', onScroll)
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  const handleScroll = () => {
+    const el = document.getElementById('about')
+    if (el) el.scrollIntoView({ behavior: 'smooth' })
+  }
+
   return (
-    <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 -z-10">
+    <section
+      id="hero"
+      className="relative w-full h-screen flex items-center justify-center overflow-hidden"
+      style={{ backgroundColor: '#0a0a0f' }}
+    >
+      <div className="absolute inset-0">
         <Suspense fallback={null}>
           <ParticleCanvas />
         </Suspense>
       </div>
-      <div className="relative z-10 text-center px-6">
-        <p className="font-body text-sm text-secondary tracking-widest uppercase mb-4">
-          Electronics & Communication Engineer
+
+      <div
+        className="absolute inset-0"
+        style={{
+          background: 'radial-gradient(ellipse 80% 60% at 50% 40%, rgba(124,58,237,0.08) 0%, transparent 70%)',
+        }}
+      />
+
+      <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
+        <p className="font-body text-xs md:text-sm text-[#06b6d4] tracking-[0.25em] uppercase mb-5">
+          BE ECE &middot; GECR &middot; 2026
         </p>
-        <GlitchText as="h1" className="text-5xl md:text-7xl font-bold text-text mb-6">
+
+        <h1
+          className="glitch-hero font-heading text-5xl sm:text-6xl md:text-7xl lg:text-[72px] font-bold leading-[1.1] text-[#e2e8f0] mb-6 select-none"
+        >
           Yuktha A R
-        </GlitchText>
-        <p className="font-body text-lg text-text/60 max-w-xl mx-auto mb-8">
-          Class of 2026 &middot; Government Engineering College Ramanagara
+        </h1>
+
+        <p className="font-body text-base md:text-lg text-[#e2e8f0]/50 h-7 mb-8">
+          <span>{typewriterWords[wordIdx].slice(0, charIdx)}</span>
+          <span className="animate-pulse text-[#7c3aed]">|</span>
         </p>
-        <div className="flex items-center justify-center gap-4">
-          <Button href="#projects">View Projects</Button>
-          <Button href="#contact">Get in Touch</Button>
+
+        <div className="flex items-center justify-center gap-4 flex-wrap">
+          <a
+            href="#projects"
+            onClick={(e) => {
+              e.preventDefault()
+              const el = document.getElementById('projects')
+              if (el) el.scrollIntoView({ behavior: 'smooth' })
+            }}
+            className="group relative overflow-hidden border border-[#7c3aed] px-7 py-3 font-body text-sm font-medium text-[#e2e8f0] transition-all duration-300"
+          >
+            <span className="relative z-10">See My Work</span>
+            <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-500 bg-gradient-to-r from-transparent via-[#7c3aed]/20 to-transparent" />
+          </a>
+          <Link
+            to="/hire"
+            className="relative overflow-hidden bg-[#7c3aed] px-7 py-3 font-body text-sm font-medium text-white transition-all duration-300 hover:bg-[#6d28d9]"
+            style={{ border: '1px solid #7c3aed' }}
+          >
+            Hire Me &rarr;
+          </Link>
         </div>
       </div>
+
+      <button
+        onClick={handleScroll}
+        className={`absolute bottom-8 left-1/2 -translate-x-1/2 text-[#7c3aed]/50 transition-opacity duration-500 ${
+          visible ? 'opacity-100' : 'opacity-0'
+        }`}
+        aria-label="Scroll down"
+      >
+        <svg width="20" height="32" viewBox="0 0 20 32" fill="none" className="animate-bounce">
+          <rect x="1" y="1" width="18" height="30" rx="9" stroke="currentColor" strokeWidth="1.5" />
+          <circle cx="10" cy="12" r="2.5" fill="currentColor">
+            <animate
+              attributeName="cy"
+              values="12;18;12"
+              dur="1.5s"
+              repeatCount="indefinite"
+            />
+          </circle>
+        </svg>
+      </button>
     </section>
   )
 }
