@@ -8,7 +8,7 @@ interface ButtonProps {
   className?: string
 }
 
-export default function Button({ children, variant = 'outline', href, onClick, className = '' }: ButtonProps) {
+export default function Button({ children, href, onClick, className = '' }: ButtonProps) {
   const base = 'inline-block animate-sweep border border-primary bg-transparent px-6 py-3 font-body text-sm font-medium text-text transition-colors hover:text-white'
 
   const Tag = href ? 'a' : 'button'
